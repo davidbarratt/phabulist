@@ -44,6 +44,12 @@ const searchProject = (new Subject()).pipe(
     share(),
 );
 
+function handleSource(answers, value) {
+    const options = searchProject.pipe(first()).toPromise();
+    searchProject.next(value);
+
+    return options;
+}
 
 async function main() {
     const { source, tag, destination } = await inquirer.prompt([
@@ -51,34 +57,19 @@ async function main() {
             type: 'autocomplete',
             name: 'source',
             message: 'Source Project',
-            source: async (answers, value) => {
-                const options = searchProject.pipe(first()).toPromise();
-                searchProject.next(value);
-
-                return options;
-            }
+            source: handleSource
         },
         {
             type: 'autocomplete',
             name: 'tag',
             message: 'Tag',
-            source: async (answers, value) => {
-                const options = searchProject.pipe(first()).toPromise();
-                searchProject.next(value);
-
-                return options;
-            }
+            source: handleSource
         },
         {
             type: 'autocomplete',
             name: 'destination',
             message: 'Destination',
-            source: async (answers, value) => {
-                const options = searchProject.pipe(first()).toPromise();
-                searchProject.next(value);
-
-                return options;
-            }
+            source: handleSource
         },
     ]);
 
