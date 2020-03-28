@@ -51,6 +51,25 @@ function handleSource(answers, value) {
     return options;
 }
 
+async function fetchTasks(source, tag) {
+    const url = new URL('/api/maniphest.search', process.env.PHABRICATOR_URL);
+    const query = new URLSearchParams();
+    query.set('api.token', process.env.PHABRICATOR_CONDUIT_API_TOKEN);
+    query.set('constraints[projects][0]', source);
+    query.set('constraints[projects][1]', tag);
+    query.set('constraints[statuses][0]', 'resolved');
+    query.set('attachments[projects]', '1');
+
+    const response = await fetch(url.toString(), {
+        method: 'POST',
+        body: query.toString(),
+    });
+
+    const { result: { data } } = await response.json();
+
+    return data;
+}
+
 async function main() {
     const { source, tag, destination } = await inquirer.prompt([
         {
@@ -74,6 +93,25 @@ async function main() {
     ]);
 
     console.log('ANSWERS', source, tag, destination);
+
+    const tasks = await fetchTasks(source, tag);
+
+    if (tasks.length === 0) {
+        console.log('No tasks to copy!');
+        return;
+    }
+
+    const { confirm } = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'confirm',
+            message: `Copy ${tasks.length} task(s)?`,
+        },
+    ]);
+
+    if (!confirm) {
+        return;
+    }
 }
 
 main();
