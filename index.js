@@ -171,8 +171,6 @@ async function main() {
     edits.subscribe(({ result: { object: { id } } } ) => {
         console.log(`Created T${id}`);
     });
-
-    return edits.toPromise();
 }
 
 main();
