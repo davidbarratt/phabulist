@@ -7,7 +7,7 @@
     "dotenv": "^8.2.0",
     "inquirer": "^7.1.0",
     "inquirer-autocomplete-prompt": "^1.0.2",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "rxjs": "^6.5.4"
   },
   "devDependencies": {},
