@@ -88,7 +88,7 @@ async function fetchTasks(source, tag) {
 async function main() {
     const prioritiesFetch = fetchPriorities();
 
-    const { source, tag, destination } = await inquirer.prompt([
+    const { source, tag } = await inquirer.prompt([
         {
             type: 'autocomplete',
             name: 'source',
@@ -101,12 +101,6 @@ async function main() {
             message: 'Tag',
             source: handleSource
         },
-        {
-            type: 'autocomplete',
-            name: 'destination',
-            message: 'Destination',
-            source: handleSource
-        },
     ]);
 
     const tasks = await fetchTasks(source, tag);
@@ -115,6 +109,15 @@ async function main() {
         console.log('No tasks to copy!');
         return;
     }
+
+    const { destination } = await inquirer.prompt([
+        {
+            type: 'autocomplete',
+            name: 'destination',
+            message: 'Destination',
+            source: handleSource
+        },
+    ]);
 
     const { confirm } = await inquirer.prompt([
         {
