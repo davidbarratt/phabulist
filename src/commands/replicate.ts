@@ -50,7 +50,7 @@ interface PhabricatorTask {
     subtype: string;
     closerPHID: string;
     dateClosed: number;
-    spacePHID: string;
+    spacePHID: string | null;
     dateCreated: string;
     dateModified: string;
     policy: {
@@ -90,7 +90,7 @@ interface PhabricatorProject {
       key: string;
       name: string|null;
     };
-    spacePHID: string;
+    spacePHID: string | null;
     dateCreated: number;
     dateModified: number;
     policy: {
@@ -234,7 +234,7 @@ export default class Replicate extends Command {
         message: 'Destination',
         source: this.handleSource.bind(this),
       },
-    ]);
+    ]) as { destination: string };
 
     const { confirm } = await inquirer.prompt([
       {
@@ -258,25 +258,60 @@ export default class Replicate extends Command {
         const url = new URL('/api/maniphest.edit', process.env.PHABRICATOR_URL);
         const query = new URLSearchParams();
         query.set('api.token', process.env.PHABRICATOR_CONDUIT_API_TOKEN || '');
-        query.set('transactions[0][type]', 'title');
-        query.set('transactions[0][value]', fields.name);
-        query.set('transactions[1][type]', 'status');
-        query.set('transactions[1][value]', 'open');
-        query.set('transactions[2][type]', 'priority');
-        query.set('transactions[2][value]', priorities.find(p => p.value === fields.priority.value)?.keywords[0] || '');
-        query.set('transactions[3][type]', 'points');
-        query.set('transactions[3][value]', fields.points);
-        query.set('transactions[4][type]', 'description');
-        query.set('transactions[4][value]', fields.description.raw);
-        query.set('transactions[5][type]', 'owner');
-        query.set('transactions[5][value]', fields.ownerPHID);
 
-        query.set('transactions[6][type]', 'projects.set');
-        [
-          ...attachments.projects?.projectPHIDs.filter(phid => phid !== source) || [],
-          destination,
-        ].forEach((phid, i) => {
-          query.set(`transactions[6][value][${i}]`, phid);
+        let transactions = [
+          {
+            type: 'title',
+            value: fields.name,
+          },
+          {
+            type: 'status',
+            value: 'open',
+          },
+          {
+            type: 'priority',
+            value: priorities.find(p => p.value === fields.priority.value)?.keywords[0] || '',
+          },
+          {
+            type: 'points',
+            value: fields.points,
+          },
+          {
+            type: 'description',
+            value: fields.description.raw,
+          },
+          {
+            type: 'owner',
+            value: fields.ownerPHID,
+          },
+          {
+            type: 'projects.set',
+            value: [
+              ...attachments.projects?.projectPHIDs.filter(phid => phid !== source) || [],
+              destination,
+            ],
+          },
+        ];
+
+        if (fields.spacePHID) {
+          transactions = [
+            ...transactions,
+            {
+              type: 'space',
+              value: fields.spacePHID,
+            },
+          ];
+        }
+
+        transactions.forEach(({ type, value }, i) => {
+          query.set(`transactions[${i}][type]`, type);
+          if (Array.isArray(value)) {
+            value.forEach((v, k) => {
+              query.set(`transactions[${i}][value][${k}]`, v);
+            });
+          } else {
+            query.set(`transactions[${i}][value]`, value);
+          }
         });
 
         return defer(() => fetch(url.toString(), {
