@@ -28,28 +28,8 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`phabulist hello [FILE]`](#phabulist-hello-file)
 * [`phabulist help [COMMAND]`](#phabulist-help-command)
-
-## `phabulist hello [FILE]`
-
-describe the command here
-
-```
-USAGE
-  $ phabulist hello [FILE]
-
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ phabulist hello
-  hello world from ./src/hello.ts!
-```
-
-_See code: [src/commands/hello.ts](https://github.com/davidbarratt/phabulist/blob/v0.0.0/src/commands/hello.ts)_
+* [`phabulist replicate`](#phabulist-replicate)
 
 ## `phabulist help [COMMAND]`
 
@@ -67,4 +47,15 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
+
+## `phabulist replicate`
+
+Duplicate tasks from one project to another
+
+```
+USAGE
+  $ phabulist replicate
+```
+
+_See code: [src/commands/replicate.ts](https://github.com/davidbarratt/phabulist/blob/v0.0.0/src/commands/replicate.ts)_
 <!-- commandsstop -->

@@ -1,0 +1,1 @@
+{"version":"0.0.0","commands":{"replicate":{"id":"replicate","description":"Duplicate tasks from one project to another","pluginName":"phabulist","pluginType":"core","aliases":[],"flags":{},"args":[]}}}
