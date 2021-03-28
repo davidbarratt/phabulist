@@ -19,7 +19,7 @@ $ npm install -g phabulist
 $ phabulist COMMAND
 running command...
 $ phabulist (-v|--version|version)
-phabulist/0.0.0 linux-x64 node-v14.15.4
+phabulist/1.0.0 linux-x64 node-v14.15.4
 $ phabulist --help [COMMAND]
 USAGE
   $ phabulist COMMAND
@@ -57,5 +57,5 @@ USAGE
   $ phabulist replicate
 ```
 
-_See code: [src/commands/replicate.ts](https://github.com/davidbarratt/phabulist/blob/v0.0.0/src/commands/replicate.ts)_
+_See code: [src/commands/replicate.ts](https://github.com/davidbarratt/phabulist/blob/v1.0.0/src/commands/replicate.ts)_
 <!-- commandsstop -->
