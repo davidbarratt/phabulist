@@ -1,9 +1,11 @@
 import { Command } from '@oclif/command';
 import { Subject, of, defer, from } from 'rxjs';
 import { delay, share, flatMap, switchMap, first } from 'rxjs/operators';
-import fetch, { RequestInfo, RequestInit } from 'node-fetch';
 import * as inquirer from 'inquirer';
 import * as autocomplete from 'inquirer-autocomplete-prompt';
+import makeFetchCookie from 'fetch-cookie'
+
+const cookieFetch = makeFetchCookie(fetch)
 
 inquirer.registerPrompt('autocomplete', autocomplete);
 
@@ -159,8 +161,8 @@ export default class Replicate extends Command {
     return options;
   }
 
-  private async conduitFetch<T>(resource: RequestInfo, options: RequestInit | undefined = {}) {
-    const response = await fetch(resource, {
+  private async conduitFetch<T>(resource: Parameters<typeof fetch>[0], options: Parameters<typeof fetch>[1]) {
+    const response = await cookieFetch(resource, {
       method: 'POST',
       ...options,
     });
@@ -203,6 +205,23 @@ export default class Replicate extends Command {
   }
 
   async run() {
+    if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
+      const url = new URL('/status/', process.env.PHABRICATOR_URL);
+      const response = await cookieFetch(url, {
+        headers: {
+          'CF-Access-Client-Id': process.env.CF_ACCESS_CLIENT_ID,
+          'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET,
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Phabricator was not reachable. Status: ${response.status}`);
+      }
+      const text = (await response.text()).trim();
+      if (text !== 'ALIVE') {
+        throw new Error(`Phabricator was not reachable. Response: ${text}`);
+      }
+    }
+
     const prioritiesFetch = this.fetchPriorities();
 
     const { source, tag } = await inquirer.prompt([
@@ -314,7 +333,7 @@ export default class Replicate extends Command {
           }
         });
 
-        return defer(() => fetch(url.toString(), {
+        return defer(() => cookieFetch(url.toString(), {
           method: 'POST',
           body: query.toString(),
         })).pipe(
